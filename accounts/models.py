@@ -5,10 +5,10 @@ from django.db import models
 
 # Account model
 class Account(models.Model):
-    id_card = models.IntegerField(max_length=9999999999)
+    id_card = models.BigIntegerField()
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    phone = models.IntegerField(max_length=9999999999)
+    phone = models.BigIntegerField()
     password = models.CharField(max_length=9999)
     balance = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)

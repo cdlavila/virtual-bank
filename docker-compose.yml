@@ -12,6 +12,8 @@ services:
       - "5432:5432"
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
+    networks:
+      - virtual-bank
   redis:
     image: redis:latest
     ports:
@@ -19,9 +21,9 @@ services:
     volumes:
       - ./redis_data:/var/lib/redis/data
     networks:
-      - virtual_bank
+      - virtual-bank
 networks:
-  virtual_bank:
+  virtual-bank:
     driver: bridge
 
 # COMMANDS: docker-compose up -d, docker-compose down
