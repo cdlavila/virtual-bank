@@ -22,6 +22,28 @@ services:
       - ./redis_data:/var/lib/redis/data
     networks:
       - virtual-bank
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: .env
+    environment:
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_HOST: postgres # the name of the service defined above
+      DATABASE_PORT: ${DATABASE_PORT}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "8000:8000"
+    networks:
+      - virtual-bank
+
 networks:
   virtual-bank:
     driver: bridge

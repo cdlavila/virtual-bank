@@ -19,7 +19,9 @@ It has the following endpoints:
 6. Run `pip3 install -r requirements.txt` to install the dependencies
 7. Run `python3 manage.py migrate` to run the migrations
 8. Run `python3 manage.py runserver` to run the server
-9. Go to <a>http://localhost:8000 to see the server running
+9. **[OPTIONAL]** Run `uwsgi --http :8000 --module django_app.wsgi` if you want to run the project with **uWSGI**
+10. **[OPTIONAL]** Run `gunicorn django_app.wsgi ` if you want to run the project with **Gunicorn**
+11. Go to <a>http://localhost:8000 to see the server running
 
 ## Database migrations
 1. Run `python3 manage.py makemigrations` to create a new migration file
