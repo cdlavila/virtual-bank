@@ -9,6 +9,10 @@ It has the following endpoints:
 - `PUT /api/v1/accounts/<id>` - Update a whole account
 - `PATCH /api/v1/accounts/<id>` - Update specific fields of an account
 - `DELETE /api/v1/accounts/<id>` - Delete an account
+- `GET /api/v1/accounts/<id>/balance` - Get the balance of an account
+- `POST /api/v1/accounts/<id>/deposit` - Deposit money to an account
+- `GET /api/v1/accounts/<id>/withdraw_code` - Get a withdraw code for an account
+- `POST /api/v1/accounts/<id>/withdraw` - Withdraw money from an account
 
 ## Installation
 1. Clone the repository
