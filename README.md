@@ -17,7 +17,7 @@ It has the following endpoints:
 ## Installation
 1. Clone the repository
 2. Copy `.env.example` to `.env` and fill in the values
-3. Run `docker-compose up -d` to raise the database container
+3. Run `docker-compose up -d postgres` to raise the database container
 4. Run `python3 -m venv venv`
 5. Run `source venv/bin/activate`
 6. Run `pip3 install -r requirements.txt` to install the dependencies
@@ -33,3 +33,16 @@ It has the following endpoints:
 3. Run `python3 manage.py showmigrations` to see the migration history
 4. Run `python3 manage.py migrate <app_name> zero` to revert all migrations of an app
 5. Run `python3 manage.py migrate zero` to revert all migrations
+
+## Linter
+1. Run `pylint filename.py` to run the linter on a specific file
+2. Run `pylint foldername` to run the linter on a specific folder
+
+## Docker
+Additionally, if you want to run the application with docker, you can do it with the following command:
+```bash
+docker-compose up -d app
+```
+Make sure you have followed the previos steps of the installation process.
+
+You can test the application by going to <a>http://localhost:8000/docs </a>
