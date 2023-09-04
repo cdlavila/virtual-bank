@@ -33,6 +33,8 @@ It has the following endpoints:
 3. Run `python3 manage.py showmigrations` to see the migration history
 4. Run `python3 manage.py migrate <app_name> zero` to revert all migrations of an app
 5. Run `python3 manage.py migrate zero` to revert all migrations
+6. Run `python3 manage.py migrate <app_name> <migration_name>` to revert a specific migration of an app
+7. Run `python3 manage.py migrate <migration_name>` to revert a specific migration
 
 ## Linter
 1. Run `pylint filename.py` to run the linter on a specific file
