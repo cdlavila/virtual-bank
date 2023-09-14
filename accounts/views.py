@@ -4,6 +4,8 @@ import random
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework_simplejwt import views as jwt_views
+from rest_framework.permissions import IsAuthenticated
 
 from .models import Account
 from .serializers import AccountSerializer, AccountDepositSerializer, AccountWithdrawSerializer
@@ -12,7 +14,7 @@ from .serializers import AccountSerializer, AccountDepositSerializer, AccountWit
 class AccountViewSet(viewsets.ModelViewSet):
     # Basic CRUD operations are already implemented by the ModelViewSet class
     queryset = Account.objects.all()
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [IsAuthenticated] # Only authenticated users can access this view
     serializer_class = AccountSerializer
 
     # Custom actions can be added to the ViewSet

@@ -3,6 +3,8 @@ REST API for a virtual bank application created with [Django](https://www.django
 <br>
 <br>
 It has the following endpoints:
+- `POST /login` - Login as a Django user
+- `POST /refresh` - Refresh the JWT token
 - `POST /api/v1/accounts` - Create a new account
 - `GET /api/v1/accounts` - Get all accounts
 - `GET /api/v1/accounts/<id>` - Get a specific account
@@ -35,6 +37,9 @@ It has the following endpoints:
 5. Run `python3 manage.py migrate zero` to revert all migrations
 6. Run `python3 manage.py migrate <app_name> <migration_name>` to revert a specific migration of an app
 7. Run `python3 manage.py migrate <migration_name>` to revert a specific migration
+
+## Django users
+1. Run `python3 manage.py createsuperuser` to create a new superuser
 
 ## Linter
 1. Run `pylint filename.py` to run the linter on a specific file
