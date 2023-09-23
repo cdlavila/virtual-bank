@@ -14,14 +14,6 @@ services:
       - ./postgres_data:/var/lib/postgresql/data
     networks:
       - virtual-bank
-  redis:
-    image: redis:latest
-    ports:
-      - "6379:6379"
-    volumes:
-      - ./redis_data:/var/lib/redis/data
-    networks:
-      - virtual-bank
   app:
     build:
       context: .
@@ -38,7 +30,6 @@ services:
       REDIS_PORT: 6379
     depends_on:
       - postgres
-      - redis
     ports:
       - "8000:8000"
     networks:

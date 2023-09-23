@@ -30,16 +30,10 @@ It has the following endpoints:
 11. Go to <a>http://localhost:8000 to see the server running
 
 ## Database migrations
-1. Run `python3 manage.py makemigrations` to create a new migration file
-2. Run `python3 manage.py migrate` to apply the migrations
-3. Run `python3 manage.py showmigrations` to see the migration history
+1. Run `python3 manage.py makemigrations <app_name>` to generate a new migration file for an app
+2. Run `python3 manage.py migrate <app_name>` to apply the migrations of an app
+3. Run `python3 manage.py showmigrations <app_name>` to show the migrations of an app
 4. Run `python3 manage.py migrate <app_name> zero` to revert all migrations of an app
-5. Run `python3 manage.py migrate zero` to revert all migrations
-6. Run `python3 manage.py migrate <app_name> <migration_name>` to revert a specific migration of an app
-7. Run `python3 manage.py migrate <migration_name>` to revert a specific migration
-
-## Django users
-1. Run `python3 manage.py createsuperuser` to create a new superuser
 
 ## Linter
 1. Run `pylint filename.py` to run the linter on a specific file
