@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 
 
@@ -5,10 +6,10 @@ from django.db import models
 
 # Account model
 class Account(models.Model):
-    id_card = models.BigIntegerField(unique=True)
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    phone = models.BigIntegerField()
+    phone = models.BigIntegerField(unique=True)
     password = models.CharField(max_length=9999)
     balance = models.FloatField(default=0.0)
     withdraw_code = models.IntegerField(null=True)
@@ -21,6 +22,7 @@ class Account(models.Model):
 
 # Transaction model
 class Transaction(models.Model):
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     amount = models.FloatField()
     transaction_type = models.CharField(max_length=10, choices=[('deposit', 'deposit'), ('withdraw', 'withdraw')],
