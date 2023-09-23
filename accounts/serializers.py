@@ -3,12 +3,20 @@ from django.core import validators
 from .models import Account
 
 
-class AccountSerializer(serializers.ModelSerializer):
+class AccountRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = ('id_card', 'first_name', 'last_name', 'phone', 'password', 'created_at')
+        fields = ('first_name', 'last_name', 'phone', 'password', 'created_at')
         read_only_fields = ('created_at',)
         extra_kwargs = {'password': {'write_only': True}}
+
+
+class AccountLoginSerializer(serializers.Serializer):
+    phone = serializers.CharField(max_length=11)
+    password = serializers.CharField(max_length=128)
+
+    class Meta:
+        fields = ('phone', 'password')
 
 
 class AccountDepositSerializer(serializers.ModelSerializer):

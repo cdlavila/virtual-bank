@@ -1,21 +1,66 @@
 from datetime import datetime, timedelta
-import random
-
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework_simplejwt import views as jwt_views
-from rest_framework.permissions import IsAuthenticated
-
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import Account
-from .serializers import AccountSerializer, AccountDepositSerializer, AccountWithdrawSerializer
+from .serializers import (AccountDepositSerializer, AccountWithdrawSerializer, AccountRegisterSerializer,
+                          AccountLoginSerializer)
 
 
-class AccountViewSet(viewsets.ModelViewSet):
-    # Basic CRUD operations are already implemented by the ModelViewSet class
-    queryset = Account.objects.all()
-    permission_classes = [IsAuthenticated]  # Only authenticated users can access this view
-    serializer_class = AccountSerializer
+class AccountRegisterView(viewsets.GenericViewSet):
+    serializer_class = AccountRegisterSerializer
+    permission_classes = [permissions.AllowAny]  # Anyone can access this view
+
+    @action(detail=False, methods=['post'], url_path='register')
+    def register(self, request):
+        serializer = self.get_serializer(data=request.data)
+
+        if not serializer.is_valid():  # Unique phone is validated in the serializer
+            return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        account = serializer.save()
+        refresh = RefreshToken.for_user(account)
+        access_token = str(refresh.access_token)
+
+        return Response(
+            {'id': account.id, 'access_token': access_token},
+            status=status.HTTP_201_CREATED
+        )
+
+
+class AccountLoginView(viewsets.GenericViewSet):
+    serializer_class = AccountLoginSerializer
+    permission_classes = [permissions.AllowAny]  # Anyone can access this view
+
+    @action(detail=False, methods=['post'], url_path='login')
+    def login(self, request):
+        serializer = self.get_serializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            account = Account.objects.get(phone=request.data['phone'])
+        except Account.DoesNotExist:
+            return Response({'error': 'Account not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        if account.password != request.data.get('password'):
+            return Response({'error': 'Invalid password'}, status=status.HTTP_400_BAD_REQUEST)
+
+        refresh = RefreshToken.for_user(account)
+        access_token = str(refresh.access_token)
+
+        return Response(
+            {'id': account.id, 'access_token': access_token},
+            status=status.HTTP_200_OK
+        )
+
+
+class AccountViewSet(viewsets.GenericViewSet):
+    # permission_classes = [IsAuthenticated]  # Only authenticated users can access this view
+    permission_classes = [permissions.AllowAny]  # Anyone can access this view
 
     # Custom actions can be added to the ViewSet
     @action(detail=True, methods=['get'], url_path='balance')
@@ -27,7 +72,7 @@ class AccountViewSet(viewsets.ModelViewSet):
         try:
             account = Account.objects.get(id_card=pk)
         except Account.DoesNotExist:
-            return Response({'error': 'Account not found'}, status=404)
+            return Response({'error': 'Account not found'}, status=status.HTTP_404_NOT_FOUND)
 
         return Response({
             'balance': account.balance
@@ -39,12 +84,12 @@ class AccountViewSet(viewsets.ModelViewSet):
         serializer = AccountDepositSerializer(data=request.data)
 
         if not serializer.is_valid():
-            return Response({'errors': serializer.errors}, status=400)
+            return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             account = Account.objects.get(id_card=pk)
         except Account.DoesNotExist:
-            return Response({'error': 'Account not found'}, status=404)
+            return Response({'error': 'Account not found'}, status=status.HTTP_404_NOT_FOUND)
 
         account.balance += amount
         account.save()
@@ -59,7 +104,7 @@ class AccountViewSet(viewsets.ModelViewSet):
         try:
             account = Account.objects.get(id_card=pk)
         except Account.DoesNotExist:
-            return Response({'error': 'Account not found'}, status=404)
+            return Response({'error': 'Account not found'}, status=status.HTTP_404_NOT_FOUND)
 
         account.withdraw_code = random.randint(100000, 999999)
         account.withdraw_code_expiration = datetime.now() + timedelta(minutes=0.5)
@@ -75,20 +120,20 @@ class AccountViewSet(viewsets.ModelViewSet):
         serializer = AccountWithdrawSerializer(data=request.data)
 
         if not serializer.is_valid():
-            return Response({'errors': serializer.errors}, status=400)
+            return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             account = Account.objects.get(id_card=pk)
         except Account.DoesNotExist:
-            return Response({'error': 'Account not found'}, status=404)
+            return Response({'error': 'Account not found'}, status=status.HTTP_404_NOT_FOUND)
 
         if account.withdraw_code != withdraw_code:
-            return Response({'error': 'Invalid withdraw code'}, status=400)
+            return Response({'error': 'Invalid withdraw code'}, status=status.HTTP_400_BAD_REQUEST)
 
         withdraw_code_expiration = account.withdraw_code_expiration.replace(tzinfo=None)
 
         if withdraw_code_expiration < datetime.now():
-            return Response({'error': 'Withdraw code expired'}, status=400)
+            return Response({'error': 'Withdraw code expired'}, status=status.HTTP_400_BAD_REQUEST)
 
         account.balance -= amount
         account.withdraw_code = None
