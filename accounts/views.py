@@ -14,7 +14,7 @@ from .serializers import AccountSerializer, AccountDepositSerializer, AccountWit
 class AccountViewSet(viewsets.ModelViewSet):
     # Basic CRUD operations are already implemented by the ModelViewSet class
     queryset = Account.objects.all()
-    permission_classes = [IsAuthenticated] # Only authenticated users can access this view
+    permission_classes = [IsAuthenticated]  # Only authenticated users can access this view
     serializer_class = AccountSerializer
 
     # Custom actions can be added to the ViewSet
@@ -24,7 +24,6 @@ class AccountViewSet(viewsets.ModelViewSet):
         # Accesses the request data using request.data
         # Uses the 'pk' parameter to get the ID of the specific instance
         # Performs the operations and returns the desired response
-
         try:
             account = Account.objects.get(id_card=pk)
         except Account.DoesNotExist:

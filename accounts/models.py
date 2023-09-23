@@ -17,3 +17,15 @@ class Account(models.Model):
 
     class Meta:
         db_table = "accounts"
+
+
+# Transaction model
+class Transaction(models.Model):
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    amount = models.FloatField()
+    transaction_type = models.CharField(max_length=10, choices=[('deposit', 'deposit'), ('withdraw', 'withdraw')],
+                                        null=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "transactions"
