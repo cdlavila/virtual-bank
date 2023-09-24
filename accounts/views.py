@@ -7,6 +7,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import Account
 from .serializers import (AccountDepositSerializer, AccountWithdrawSerializer, AccountRegisterSerializer,
                           AccountLoginSerializer)
+from .hasher import verify_password
 
 
 class AccountRegisterView(viewsets.GenericViewSet):
@@ -46,7 +47,8 @@ class AccountLoginView(viewsets.GenericViewSet):
         except Account.DoesNotExist:
             return Response({'error': 'Account not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        if account.password != request.data.get('password'):
+        is_math = verify_password(request.data['password'], account.password)
+        if not is_math:
             return Response({'error': 'Invalid password'}, status=status.HTTP_400_BAD_REQUEST)
 
         refresh = RefreshToken.for_user(account)
@@ -65,12 +67,8 @@ class AccountViewSet(viewsets.GenericViewSet):
     # Custom actions can be added to the ViewSet
     @action(detail=True, methods=['get'], url_path='balance')
     def get_balance(self, request, pk=None):
-        # Custom logic here
-        # Accesses the request data using request.data
-        # Uses the 'pk' parameter to get the ID of the specific instance
-        # Performs the operations and returns the desired response
         try:
-            account = Account.objects.get(id_card=pk)
+            account = Account.objects.get(id=pk)
         except Account.DoesNotExist:
             return Response({'error': 'Account not found'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -87,7 +85,7 @@ class AccountViewSet(viewsets.GenericViewSet):
             return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            account = Account.objects.get(id_card=pk)
+            account = Account.objects.get(id=pk)
         except Account.DoesNotExist:
             return Response({'error': 'Account not found'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -102,7 +100,7 @@ class AccountViewSet(viewsets.GenericViewSet):
     @action(detail=True, methods=['get'], url_path='withdraw_code')
     def generate_withdraw_code(self, request, pk=None):
         try:
-            account = Account.objects.get(id_card=pk)
+            account = Account.objects.get(id=pk)
         except Account.DoesNotExist:
             return Response({'error': 'Account not found'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -123,7 +121,7 @@ class AccountViewSet(viewsets.GenericViewSet):
             return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            account = Account.objects.get(id_card=pk)
+            account = Account.objects.get(id=pk)
         except Account.DoesNotExist:
             return Response({'error': 'Account not found'}, status=status.HTTP_404_NOT_FOUND)
 
