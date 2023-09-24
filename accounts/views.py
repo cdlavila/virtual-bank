@@ -1,13 +1,13 @@
+import random
 from datetime import datetime, timedelta
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.views import TokenObtainPairView
-from .models import Account
+from .models import Account, Transaction
 from .serializers import (AccountDepositSerializer, AccountWithdrawSerializer, AccountRegisterSerializer,
                           AccountLoginSerializer)
-from .hasher import verify_password
+from accounts.utils.hasher import verify_password
 
 
 class AccountRegisterView(viewsets.GenericViewSet):
@@ -91,10 +91,15 @@ class AccountViewSet(viewsets.GenericViewSet):
 
         account.balance += amount
         account.save()
+
+        transaction = Transaction(account=account, amount=amount, transaction_type='deposit')
+        transaction.save()
+
         return Response({
             'previous_balance': account.balance - amount,
             'amount_deposited': amount,
-            'current_balance': account.balance
+            'current_balance': account.balance,
+            'transaction_id': transaction.id
         })
 
     @action(detail=True, methods=['get'], url_path='withdraw_code')
@@ -133,12 +138,20 @@ class AccountViewSet(viewsets.GenericViewSet):
         if withdraw_code_expiration < datetime.now():
             return Response({'error': 'Withdraw code expired'}, status=status.HTTP_400_BAD_REQUEST)
 
+        if account.balance < amount:
+            return Response({'error': 'Insufficient funds'}, status=status.HTTP_400_BAD_REQUEST)
+
         account.balance -= amount
         account.withdraw_code = None
         account.withdraw_code_expiration = None
         account.save()
+
+        transaction = Transaction(account=account, amount=amount, transaction_type='withdraw')
+        transaction.save()
+
         return Response({
             'previous_balance': account.balance + amount,
             'amount_withdrawn': amount,
-            'current_balance': account.balance
+            'current_balance': account.balance,
+            'transaction_id': transaction.id
         })

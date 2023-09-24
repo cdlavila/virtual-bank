@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.core import validators
 from .models import Account
-from .hasher import hash_password
+from accounts.utils.hasher import hash_password
 
 
 class AccountRegisterSerializer(serializers.ModelSerializer):
