@@ -47,7 +47,7 @@ class AccountLoginView(viewsets.GenericViewSet):
 
         is_math = verify_password(request.data['password'], account.password)
         if not is_math:
-            return Response({'error': 'Invalid password'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Invalid password'}, status=status.HTTP_401_UNAUTHORIZED)
 
         token = jwt.create_token(data={'id': str(account.id)})
 

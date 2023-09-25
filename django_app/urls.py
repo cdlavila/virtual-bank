@@ -21,4 +21,5 @@ urlpatterns = [
     path("", ServerWelcomeView.as_view(), name="server_welcome"),
     path("api/v1/", APIWelcomeView.as_view(), name="api_welcome"),
     path("api/v1/", include("accounts.urls")),
+    path("api/v1/", include("loans.urls")),
 ]
