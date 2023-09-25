@@ -3,11 +3,12 @@ from datetime import datetime, timedelta
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Account, Transaction
 from .serializers import (AccountDepositSerializer, AccountWithdrawSerializer, AccountRegisterSerializer,
                           AccountLoginSerializer)
 from accounts.utils.hasher import verify_password
+from accounts.utils import jwt
+from accounts.middlewares.auth import check_authentication
 
 
 class AccountRegisterView(viewsets.GenericViewSet):
@@ -22,11 +23,10 @@ class AccountRegisterView(viewsets.GenericViewSet):
             return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         account = serializer.save()
-        refresh = RefreshToken.for_user(account)
-        access_token = str(refresh.access_token)
+        token = jwt.create_token(data={'id': str(account.id)})
 
         return Response(
-            {'id': account.id, 'access_token': access_token},
+            {'id': account.id, 'token': token},
             status=status.HTTP_201_CREATED
         )
 
@@ -51,22 +51,23 @@ class AccountLoginView(viewsets.GenericViewSet):
         if not is_math:
             return Response({'error': 'Invalid password'}, status=status.HTTP_400_BAD_REQUEST)
 
-        refresh = RefreshToken.for_user(account)
-        access_token = str(refresh.access_token)
+        token = jwt.create_token(data={'id': str(account.id)})
 
         return Response(
-            {'id': account.id, 'access_token': access_token},
+            {'id': account.id, 'token': token},
             status=status.HTTP_200_OK
         )
 
 
 class AccountViewSet(viewsets.GenericViewSet):
-    # permission_classes = [IsAuthenticated]  # Only authenticated users can access this view
     permission_classes = [permissions.AllowAny]  # Anyone can access this view
 
     # Custom actions can be added to the ViewSet
-    @action(detail=True, methods=['get'], url_path='balance')
-    def get_balance(self, request, pk=None):
+    @action(detail=False, methods=['get'], url_path='balance')
+    @check_authentication
+    def get_balance(self, request):
+        # We can access the authenticated user with request.user
+        pk = request.user.get('id')
         try:
             account = Account.objects.get(id=pk)
         except Account.DoesNotExist:
@@ -76,9 +77,11 @@ class AccountViewSet(viewsets.GenericViewSet):
             'balance': account.balance
         })
 
-    @action(detail=True, methods=['patch'], url_path='deposit')
-    def deposit(self, request, pk=None):
-        amount = request.data['amount']
+    @action(detail=False, methods=['patch'], url_path='deposit')
+    @check_authentication
+    def deposit(self, request):
+        amount = request.data.get('amount')
+        pk = request.user.get('id')
         serializer = AccountDepositSerializer(data=request.data)
 
         if not serializer.is_valid():
@@ -102,8 +105,10 @@ class AccountViewSet(viewsets.GenericViewSet):
             'transaction_id': transaction.id
         })
 
-    @action(detail=True, methods=['get'], url_path='withdraw_code')
-    def generate_withdraw_code(self, request, pk=None):
+    @action(detail=False, methods=['get'], url_path='withdraw_code')
+    @check_authentication
+    def generate_withdraw_code(self, request):
+        pk = request.user.get('id')
         try:
             account = Account.objects.get(id=pk)
         except Account.DoesNotExist:
@@ -116,10 +121,12 @@ class AccountViewSet(viewsets.GenericViewSet):
             'withdraw_code': account.withdraw_code
         })
 
-    @action(detail=True, methods=['patch'], url_path='withdraw')
-    def withdraw(self, request, pk=None):
-        amount = request.data['amount']
-        withdraw_code = request.data['withdraw_code']
+    @action(detail=False, methods=['patch'], url_path='withdraw')
+    @check_authentication
+    def withdraw(self, request):
+        amount = request.data.get('amount')
+        pk = request.user.get('id')
+        withdraw_code = request.data.get('withdraw_code')
         serializer = AccountWithdrawSerializer(data=request.data)
 
         if not serializer.is_valid():
