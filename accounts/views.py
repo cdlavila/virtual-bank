@@ -1,7 +1,6 @@
 import random
 from datetime import datetime, timedelta
 from rest_framework import viewsets, status
-from rest_framework.views import APIView
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Account, Transaction
@@ -10,11 +9,6 @@ from .serializers import (AccountDepositSerializer, AccountWithdrawSerializer, A
 from accounts.utils.hasher import verify_password
 from accounts.utils import jwt
 from accounts.middlewares.auth import check_authentication
-
-
-class APIWelcomeView(APIView):
-    def get(self, request):
-        return Response({'message': 'Welcome to the banking API'})
 
 
 class AccountRegisterView(viewsets.GenericViewSet):
