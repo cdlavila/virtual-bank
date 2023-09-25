@@ -39,6 +39,14 @@ It has the following endpoints:
 1. Run `pylint filename.py` to run the linter on a specific file
 2. Run `pylint foldername` to run the linter on a specific folder
 
+## Tests
+1. Run `python3 -m unittest discover -s accounts -p "test_*.py"` to run the unit tests of a specific app
+2. Run `python3 -m unittest discover -s accounts -p "file_name.py"` to run the unit tests of a specific file
+
+## DRF CLI
+1. Run `python manage.py startapp <app_name>` to create a new app
+2. Run `python manage.py runserver` to run the server
+
 ## Docker
 Additionally, if you want to run the application with docker, you can do it with the following command:
 ```bash
