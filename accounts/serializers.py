@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.core import validators
-from .models import Account
+from .models import Account, Transaction
 from accounts.utils.hasher import hash_password
 
 
@@ -39,3 +39,10 @@ class AccountWithdrawSerializer(serializers.Serializer):
     class Meta:
         fields = ('amount', 'withdraw_code')
         extra_kwargs = {'amount': {'required': True}, 'withdraw_code': {'required': True}}
+
+
+class TransactionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transaction
+        fields = '__all__'  # This will serialize all fields of the model
+

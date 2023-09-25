@@ -1,11 +1,11 @@
 import random
 from datetime import datetime, timedelta
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Account, Transaction
 from .serializers import (AccountDepositSerializer, AccountWithdrawSerializer, AccountRegisterSerializer,
-                          AccountLoginSerializer)
+                          AccountLoginSerializer, TransactionSerializer)
 from accounts.utils.hasher import verify_password
 from accounts.utils import jwt
 from accounts.middlewares.auth import check_authentication
@@ -13,7 +13,6 @@ from accounts.middlewares.auth import check_authentication
 
 class AccountRegisterView(viewsets.GenericViewSet):
     serializer_class = AccountRegisterSerializer
-    permission_classes = [permissions.AllowAny]  # Anyone can access this view
 
     @action(detail=False, methods=['post'], url_path='register')
     def register(self, request):
@@ -33,7 +32,6 @@ class AccountRegisterView(viewsets.GenericViewSet):
 
 class AccountLoginView(viewsets.GenericViewSet):
     serializer_class = AccountLoginSerializer
-    permission_classes = [permissions.AllowAny]  # Anyone can access this view
 
     @action(detail=False, methods=['post'], url_path='login')
     def login(self, request):
@@ -60,8 +58,6 @@ class AccountLoginView(viewsets.GenericViewSet):
 
 
 class AccountViewSet(viewsets.GenericViewSet):
-    permission_classes = [permissions.AllowAny]  # Anyone can access this view
-
     # Custom actions can be added to the ViewSet
     @action(detail=False, methods=['get'], url_path='balance')
     @check_authentication
@@ -162,3 +158,20 @@ class AccountViewSet(viewsets.GenericViewSet):
             'current_balance': account.balance,
             'transaction_id': transaction.id
         })
+
+
+class TransactionViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Transaction.objects.all()
+    serializer_class = TransactionSerializer
+
+    @check_authentication
+    def list(self, request, *args, **kwargs):
+        pk = request.user.get('id')
+        self.queryset = self.queryset.filter(account=pk)
+        return super().list(request, *args, **kwargs)
+
+    @check_authentication
+    def retrieve(self, request, *args, **kwargs):
+        pk = request.user.get('id')
+        self.queryset = self.queryset.filter(account=pk)
+        return super().retrieve(request, *args, **kwargs)

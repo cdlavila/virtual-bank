@@ -1,6 +1,6 @@
 from rest_framework import routers
 from django.urls import path
-from .views import AccountRegisterView, AccountLoginView, AccountViewSet
+from .views import AccountRegisterView, AccountLoginView, AccountViewSet, TransactionViewSet
 
 urlpatterns = [
     path('api/v1/auth/register/', AccountRegisterView.as_view({'post': 'register'}), name='auth-register'),
@@ -9,5 +9,6 @@ urlpatterns = [
 
 router = routers.DefaultRouter()
 router.register('api/v1/accounts', AccountViewSet, 'accounts')
+router.register('api/v1/transactions', TransactionViewSet, 'transactions')
 
 urlpatterns += router.urls
