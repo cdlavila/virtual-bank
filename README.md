@@ -42,6 +42,8 @@ It has the following endpoints:
 ## Tests
 1. Run `python3 -m unittest discover -s accounts -p "test_*.py"` to run the unit tests of a specific app
 2. Run `python3 -m unittest discover -s accounts -p "file_name.py"` to run the unit tests of a specific file
+3. Run `python manage.py test` to run all integration tests
+4. Run `python manage.py test <app_name>` to run all integration tests of an app 
 
 ## DRF CLI
 1. Run `python manage.py startapp <app_name>` to create a new app
